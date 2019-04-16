@@ -25,13 +25,12 @@ fun printAll(vararg messages: String) {
     for (m in messages) println(m)
 }
 
-
-fun printAllWithPrefix(vararg messages: String, prefix: String) {  // 3
+fun printAllWithPrefix(vararg messages: String, prefix: String) {
     for (m in messages) println(prefix + m)
 }
 
 fun log(vararg entries: String) {
-    printAll(*entries)                                             // 5
+    printAll(*entries)
 }
 
 fun main() {
@@ -61,13 +60,18 @@ fun main() {
     val claudia = Person("Claudia")
     sophia likes claudia
 
-    printAll("Hello", "Hallo", "Salut", "Hola", "你好")                 // 2
+    printAll("Hello", "Hallo", "Salut", "Hola", "你好")
 
     printAllWithPrefix(
         "Hello", "Hallo", "Salut", "Hola", "你好",
-        prefix = "Greeting: "                                          // 4
+        prefix = "Greeting: "
     )
 
     //lesson 3 variables
-
+    var a: String = "hello string variable"
+    println(a)
+    val b: Int = 1
+    val c = 3
+    var e: Int = 15
+    println(e)
 }
