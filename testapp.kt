@@ -1,5 +1,8 @@
 package org.kotlinlang.play
 
+import java.util.Random
+
+
 fun printMessage(message: String): Unit {
     println(message)
 }
@@ -36,7 +39,6 @@ fun log(vararg entries: String) {
 fun someCondition(x: Int, y: Int){
     println(sum(x,y))
 }
-
 
 fun describeString(maybeString: String?): String {
     if (maybeString != null && maybeString.length > 0) {
@@ -114,11 +116,140 @@ class Animal(val name: String)
 
 class Zoo(val animals: List<Animal>) {
 
-    operator fun iterator(): Iterator<Animal> {             // 1
-        return animals.iterator()                           // 2
+    operator fun iterator(): Iterator<Animal> {
+        return animals.iterator()
     }
 }
 
+data class User(val name: String, val id: Int)
+
+enum class State {
+    IDLE, RUNNING, FINISHED                           // 1
+}
+
+enum class Color(val rgb: Int) {                      // 1
+    RED(0xFF0000),                                    // 2
+    GREEN(0x00FF00),
+    BLUE(0x0000FF),
+    YELLOW(0xFFFF00);
+
+    fun containsRed() = (this.rgb and 0xFF0000 != 0)  // 3
+}
+
+sealed class Mammal(val name: String)                                                   // 1
+
+class Cat(val catName: String) : Mammal(catName)                                        // 2
+class Human(val humanName: String, val job: String) : Mammal(humanName)
+
+fun greetMammal(mammal: Mammal): String {
+    when (mammal) {                                                                     // 3
+        is Human -> return "Hello ${mammal.name}; You're working as a ${mammal.job}"    // 4
+        is Cat -> return "Hello ${mammal.name}"                                         // 5
+    }                                                                                   // 6
+}
+
+class LuckDispatcher {                    //1
+    fun getNumber() {                     //2
+        var objRandom = Random()
+        println(objRandom.nextInt(90))
+    }
+}
+
+fun rentPrice(standardDays: Int, festivityDays: Int, specialDays: Int): Unit {  //1
+
+    val dayRates = object {                                                     //2
+        var standard: Int = 30 * standardDays
+        var festivity: Int = 50 * festivityDays
+        var special: Int = 100 * specialDays
+    }
+
+    val total = dayRates.standard + dayRates.festivity + dayRates.special       //3
+
+    print("Total price: $$total")                                               //4
+
+}
+
+object DoAuth {                                                 //1
+    fun takeParams(username: String, password: String){         //2
+        println("input Auth parameters = $username:$password")
+    }
+}
+
+class BigBen {                                  //1
+    companion object Bonger {                   //2
+        fun getBongs(nTimes: Int) {             //3
+            for (i in 1 .. nTimes) {
+                print("BONG ")
+            }
+        }
+    }
+}
+
+fun calculate(x: Int, y: Int, operation: (Int, Int) -> Int): Int {  // 1
+    return operation(x, y)                                          // 2
+}
+
+fun sum1(x: Int, y: Int) = x + y
+
+fun operation(): (Int) -> Int {                                     // 1
+    return ::square
+}
+
+fun square(x: Int) = x * x                                          // 2
+
+data class Item(val name: String, val price: Float)                                   // 1
+
+data class Order(val items: Collection<Item>)
+
+fun Order.maxPricedItemValue(): Float = this.items.maxBy { it.price }?.price ?: 0F    // 2
+
+fun Order.maxPricedItemName() = this.items.maxBy { it.price }?.name ?: "NO_PRODUCTS"
+
+val Order.commaDelimitedItemNames: String                                             // 3
+    get() = items.map { it.name }.joinToString()
+
+fun <T> T?.nullSafeToString() = this?.toString() ?: "NULL"  // 1
+
+val systemUsers: MutableList<Int> = mutableListOf(1, 2, 3)        // 1
+val sudoers: List<Int> = systemUsers                              // 2
+
+fun addSudoer(newUser: Int) {                                     // 3
+    systemUsers.add(newUser)
+}
+
+fun getSysSudoers(): List<Int> {                                  // 4
+    return sudoers
+}
+
+val openIssues: MutableSet<String> = mutableSetOf("uniqueDescr1", "uniqueDescr2", "uniqueDescr3") // 1
+
+fun addIssue(uniqueDesc: String): Boolean {
+    return openIssues.add(uniqueDesc)                                                             // 2
+}
+
+fun getStatusLog(isAdded: Boolean): String {
+    return if (isAdded) "registered correctly." else "marked as duplicate and rejected."          // 3
+}
+
+const val POINTS_X_PASS: Int = 15
+val EZPassAccounts: MutableMap<Int, Int> = mutableMapOf(1 to 100, 2 to 100, 3 to 100)   // 1
+val EZPassReport: Map<Int, Int> = EZPassAccounts                                        // 2
+
+fun updatePointsCredit(accountId: Int) {
+    if (EZPassAccounts.containsKey(accountId)) {                                        // 3
+        println("Updating $accountId...")
+        EZPassAccounts[accountId] = EZPassAccounts.getValue(accountId) + POINTS_X_PASS  // 4
+    } else {
+        println("Error: Trying to update a non-existing account (id: $accountId)")
+    }
+}
+
+fun accountsReport() {
+    println("EZ-Pass report:")
+    EZPassReport.forEach{                                                               // 5
+            k, v -> println("ID $k: credit $v")
+    }
+}
 
 fun main(args: Array<String>) {
     //lesson1 functions and printing msg
@@ -290,7 +421,124 @@ fun main(args: Array<String>) {
     println(authors === writers)  // 2
 
     //lesson 10 conditional expression
+
     fun max(a: Int, b: Int) = if (a > b) a else b         // 1
 
     println(max(99, -42))
+
+    //lesson 11 data classes
+
+    val user = User("Alex", 1)
+    println(user)                                          // 2
+
+    val secondUser = User("Alex", 1)
+    val thirdUser = User("Max", 2)
+
+    println("user == secondUser: ${user == secondUser}")   // 3
+    println("user == thirdUser: ${user == thirdUser}")
+
+    println(user.hashCode())                               // 4
+    println(thirdUser.hashCode())
+
+    // copy() function
+    println(user.copy())                                   // 5
+    println(user.copy("Max"))                              // 6
+    println(user.copy(id = 2))                             // 7
+
+    println("name = ${user.component1()}")                 // 8
+    println("id = ${user.component2()}")
+
+    //lesson 12 enum classes
+    val state = State.RUNNING                         // 2
+    val message = when (state) {                      // 3
+        State.IDLE -> "It's idle"
+        State.RUNNING -> "It's running"
+        State.FINISHED -> "It's finished"
+    }
+    println(message)
+
+    val red = Color.RED
+    println(red)                                      // 4
+    println(red.containsRed())                        // 5
+    println(Color.BLUE.containsRed())                 // 6
+
+    //lesson 13 sealed classes
+
+    println(greetMammal(Cat("Snowy")))
+
+    //lesson 14 object keyword
+    val d1 = LuckDispatcher()             //3
+    val d2 = LuckDispatcher()
+
+    d1.getNumber()                        //4
+    d2.getNumber()
+
+    rentPrice(10, 2, 1)
+    println("")
+    DoAuth.takeParams("foo", "qwerty")
+
+    BigBen.getBongs(12)
+
+    val sumResult = calculate(4, 5, ::sum1)                          // 4
+    val mulResult = calculate(4, 5) { a, b -> a * b }               // 5
+    println("sumResult $sumResult, mulResult $mulResult")
+
+    val func = operation()                                          // 3
+    println(func(2))
+
+    //lesson 15 lambda functions
+
+    // All examples create a function object that performs upper-casing.
+// So it's a function from String to String
+
+    val upperCase1: (String) -> String = { str: String -> str.toUpperCase() } // 1
+
+    val upperCase2: (String) -> String = { str -> str.toUpperCase() }         // 2
+
+    val upperCase3 = { str: String -> str.toUpperCase() }                     // 3
+
+// val upperCase4 = { str -> str.toUpperCase() }                          // 4
+
+    val upperCase5: (String) -> String = { it.toUpperCase() }                 // 5
+
+    val upperCase6: (String) -> String = String::toUpperCase                  // 6
+
+    println(upperCase2("hello"))
+    println(upperCase1("hello"))
+    println(upperCase3("hello"))
+    println(upperCase5("hello"))
+    println(upperCase6("hello"))
+
+
+    //lesson 16 extension functions and properties
+    val order = Order(listOf(Item("Bread", 25.0F), Item("Wine", 29.0F), Item("Water", 12.0F)))
+
+    println("Max priced item name: ${order.maxPricedItemName()}")                     // 4
+    println("Max priced item value: ${order.maxPricedItemValue()}")
+    println("Items: ${order.commaDelimitedItemNames}")
+
+    println(null.nullSafeToString())
+    println("Kotlin".nullSafeToString())
+
+    //lesson 17 collections lists
+    addSudoer(4)                                                  // 5
+    println("Tot sudoers: ${getSysSudoers().size}")               // 6
+    getSysSudoers().forEach{                                      // 7
+            i -> println("Some useful info on user $i")
+    }
+    // getSysSudoers().add(5) <- Error!                           // 8
+
+    //lesson 18 set
+    val aNewIssue: String = "uniqueDescr4"
+    val anIssueAlreadyIn: String = "uniqueDescr2"
+
+    println("Issue $aNewIssue ${getStatusLog(addIssue(aNewIssue))}")                              // 4
+    println("Issue $anIssueAlreadyIn ${getStatusLog(addIssue(anIssueAlreadyIn))}")
+
+    //lesson 19 map
+    accountsReport()                                                                    // 6
+    updatePointsCredit(1)                                                               // 7
+    updatePointsCredit(1)
+    updatePointsCredit(5)                                                               // 8
+    accountsReport()
 }
